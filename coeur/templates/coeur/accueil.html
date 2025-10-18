@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block title %}Accueil - DataQC{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="jumbotron bg-light p-5 rounded">
+            <h1 class="display-4">Bienvenue sur DataQC</h1>
+            <p class="lead">Plateforme de moissonnage et d'exposition des données ouvertes du Québec</p>
+            <hr class="my-4">
+            <p>Cette plateforme Django permet de moissonner des métadonnées depuis Données Québec pour les exposer via des API REST et GraphQL.</p>
+            <a class="btn btn-primary btn-lg" href="#" role="button">Commencer</a>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">📊 Données</h5>
+                <p class="card-text">Consultez et explorez les données moissonnées depuis Données Québec.</p>
+                <a href="#" class="btn btn-outline-primary">Voir les données</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">🔄 Moissonnage</h5>
+                <p class="card-text">Gérez le processus de moissonnage automatique des métadonnées.</p>
+                <a href="#" class="btn btn-outline-primary">Configurer</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">🔌 API</h5>
+                <p class="card-text">Accédez aux données via nos API REST et GraphQL.</p>
+                <a href="#" class="btn btn-outline-primary">Documentation API</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col-12">
+        <h2>Source de données</h2>
+        <p>Cette plateforme moissonne des données depuis :</p>
+        <ul class="list-group">
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                Données Québec
+                <span class="badge bg-success rounded-pill">Actif</span>
+            </li>
+        </ul>
+    </div>
+</div>
+{% endblock %}
