@@ -1,0 +1,193 @@
+{% extends 'base.html' %}
+
+{% block title %}Moissonnage - DataQC{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1>🔄 Moissonnage des données</h1>
+        <p class="lead">Récupération automatique des métadonnées depuis Données Québec</p>
+    </div>
+</div>
+
+<!-- Statistiques actuelles -->
+<div class="row mt-4">
+    <div class="col-md-4">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title">🏢 Organisations</h5>
+                <h2 class="text-primary">{{ nombre_organisations }}</h2>
+                <p class="card-text">Organisations moissonnées</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title">📊 Jeux de données</h5>
+                <h2 class="text-success">{{ nombre_jeux_donnees }}</h2>
+                <p class="card-text">Jeux de données disponibles</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title">📁 Ressources</h5>
+                <h2 class="text-info">{{ nombre_ressources }}</h2>
+                <p class="card-text">Fichiers de données</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Actions de moissonnage -->
+<div class="row mt-5">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Actions de moissonnage</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Moissonnage complet</h6>
+                        <p class="text-muted">Récupère toutes les organisations et jeux de données depuis Données Québec</p>
+                        <form method="post" action="{% url 'declencher_moissonnage' %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-download"></i> Démarrer le moissonnage
+                            </button>
+                        </form>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Test rapide</h6>
+                        <p class="text-muted">Récupère seulement les 10 premières organisations pour tester</p>
+                        <button type="button" class="btn btn-outline-primary btn-lg" onclick="testMoissonnage()">
+                            <i class="fas fa-flask"></i> Test rapide
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Zone de progression -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card" id="progression-card" style="display: none;">
+            <div class="card-header">
+                <h5 class="mb-0">Progression du moissonnage</h5>
+            </div>
+            <div class="card-body">
+                <div class="progress mb-3">
+                    <div class="progress-bar" role="progressbar" style="width: 0%" id="progress-bar"></div>
+                </div>
+                <div id="progression-text">Initialisation...</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Messages -->
+{% if messages %}
+<div class="row mt-4">
+    <div class="col-12">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<!-- Informations sur la source -->
+<div class="row mt-5">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Source de données</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-8">
+                        <h6>Données Québec</h6>
+                        <p class="text-muted">
+                            Le portail de données ouvertes du gouvernement du Québec. 
+                            Cette plateforme moissonne automatiquement les métadonnées 
+                            des organisations et jeux de données disponibles.
+                        </p>
+                        <ul class="list-unstyled">
+                            <li><strong>URL:</strong> <a href="https://www.donneesquebec.ca" target="_blank">https://www.donneesquebec.ca</a></li>
+                            <li><strong>API:</strong> CKAN 3.0</li>
+                            <li><strong>Dernière mise à jour:</strong> Automatique</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-4 text-center">
+                        <div class="badge bg-success fs-6 p-3">
+                            <i class="fas fa-check-circle"></i><br>
+                            Source active
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function testMoissonnage() {
+    const progressionCard = document.getElementById('progression-card');
+    const progressBar = document.getElementById('progress-bar');
+    const progressionText = document.getElementById('progression-text');
+    
+    // Afficher la zone de progression
+    progressionCard.style.display = 'block';
+    
+    // Simuler la progression
+    let progress = 0;
+    const interval = setInterval(() => {
+        progress += 10;
+        progressBar.style.width = progress + '%';
+        
+        if (progress <= 30) {
+            progressionText.textContent = 'Récupération des organisations...';
+        } else if (progress <= 60) {
+            progressionText.textContent = 'Sauvegarde en base de données...';
+        } else if (progress <= 90) {
+            progressionText.textContent = 'Finalisation...';
+        } else {
+            progressionText.textContent = 'Terminé !';
+            clearInterval(interval);
+            
+            // Faire l'appel AJAX réel
+            fetch('{% url "moissonnage_ajax" %}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    progressionText.textContent = data.message;
+                    // Recharger la page après 2 secondes
+                    setTimeout(() => {
+                        location.reload();
+                    }, 2000);
+                } else {
+                    progressionText.textContent = 'Erreur: ' + data.message;
+                }
+            })
+            .catch(error => {
+                progressionText.textContent = 'Erreur: ' + error.message;
+            });
+        }
+    }, 200);
+}
+</script>
+{% endblock %}

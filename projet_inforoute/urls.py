@@ -20,4 +20,5 @@ from django.urls import path, include
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('coeur.urls')),
+    path('moissonnage/', include('moissonneur.urls')),
 ]
