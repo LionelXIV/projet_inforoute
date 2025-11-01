@@ -5,41 +5,43 @@
 {% block content %}
 <div class="row">
     <div class="col-12">
-        <div class="jumbotron bg-light p-5 rounded">
+        <div class="p-4">
             <h1 class="display-4">Bienvenue sur DataQC</h1>
             <p class="lead">Plateforme de moissonnage et d'exposition des données ouvertes du Québec</p>
             <hr class="my-4">
             <p>Cette plateforme Django permet de moissonner des métadonnées depuis Données Québec pour les exposer via des API REST et GraphQL.</p>
-            <a class="btn btn-primary btn-lg" href="#" role="button">Commencer</a>
         </div>
     </div>
 </div>
 
 <div class="row mt-5">
     <div class="col-md-4">
-        <div class="card">
+        <div class="card text-center">
             <div class="card-body">
-                <h5 class="card-title">📊 Données</h5>
-                <p class="card-text">Consultez et explorez les données moissonnées depuis Données Québec.</p>
-                <a href="#" class="btn btn-outline-primary">Voir les données</a>
+                <h5 class="card-title">🏢 Organisations</h5>
+                <h2 class="text-primary">{{ nombre_organisations }}</h2>
+                <p class="card-text">Organisations moissonnées</p>
+                <a href="/moissonnage/" class="btn btn-outline-primary">Moissonner</a>
             </div>
         </div>
     </div>
     <div class="col-md-4">
-        <div class="card">
+        <div class="card text-center">
             <div class="card-body">
-                <h5 class="card-title">🔄 Moissonnage</h5>
-                <p class="card-text">Gérez le processus de moissonnage automatique des métadonnées.</p>
-                <a href="#" class="btn btn-outline-primary">Configurer</a>
+                <h5 class="card-title">📊 Jeux de données</h5>
+                <h2 class="text-success">{{ nombre_jeux_donnees }}</h2>
+                <p class="card-text">Jeux de données disponibles</p>
+                <a href="/admin/" class="btn btn-outline-success">Voir admin</a>
             </div>
         </div>
     </div>
     <div class="col-md-4">
-        <div class="card">
+        <div class="card text-center">
             <div class="card-body">
-                <h5 class="card-title">🔌 API</h5>
-                <p class="card-text">Accédez aux données via nos API REST et GraphQL.</p>
-                <a href="#" class="btn btn-outline-primary">Documentation API</a>
+                <h5 class="card-title">📁 Ressources</h5>
+                <h2 class="text-info">{{ nombre_ressources }}</h2>
+                <p class="card-text">Fichiers de données</p>
+                <a href="/api/organisations/" class="btn btn-outline-info">Voir API</a>
             </div>
         </div>
     </div>

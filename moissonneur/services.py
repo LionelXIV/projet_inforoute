@@ -150,8 +150,11 @@ class ServiceMoissonnage:
         
         for ressource_data in donnees_jeu.get('resources', []):
             try:
+                # Utiliser 'name' ou 'id' ou générer un nom par défaut
+                nom_ressource = ressource_data.get('name') or ressource_data.get('id') or f"Ressource-{ressource_data.get('url', 'inconnue')[:50]}"
+                
                 ressource, creee = Ressource.objects.get_or_create(
-                    nom=ressource_data['name'],
+                    nom=nom_ressource,
                     jeu_donnees=jeu_donnees,
                     defaults={
                         'format_fichier': ressource_data.get('format', ''),
@@ -161,7 +164,7 @@ class ServiceMoissonnage:
                         'description': ressource_data.get('description', ''),
                         'methode_collecte': ressource_data.get('methodology', ''),
                         'contexte_collecte': ressource_data.get('context', ''),
-                        'attributs': ressource_data.get('attributes', '')
+                        'attributs': str(ressource_data.get('attributes', '')) if ressource_data.get('attributes') else ''
                     }
                 )
                 
