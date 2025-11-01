@@ -59,4 +59,101 @@
         </ul>
     </div>
 </div>
+
+<!-- Statistiques avancées -->
+<div class="row mt-5">
+    <div class="col-12">
+        <h2 class="mb-4">📊 Statistiques détaillées</h2>
+    </div>
+</div>
+
+<!-- Répartition thématique (Catégories) -->
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Répartition thématique</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="chartCategories" height="300"></canvas>
+                {% if not repartition_categories %}
+                    <p class="text-muted mt-3">Aucune catégorie disponible pour le moment.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tendances temporelles -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">Tendances temporelles - Jeux de données créés par mois (12 derniers mois)</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="chartTendances" height="100"></canvas>
+                {% if not tendances_temporelles %}
+                    <p class="text-muted mt-3">Aucune donnée disponible pour le moment.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+
+<script>
+// Graphique camembert - Catégories
+{% if repartition_categories %}
+const ctxCategories = document.getElementById('chartCategories').getContext('2d');
+const chartCategories = new Chart(ctxCategories, {
+    type: 'pie',
+    data: {
+        labels: {{ categories_labels|safe }},
+        datasets: [{
+            label: 'Nombre de jeux',
+            data: {{ categories_values|safe }},
+            backgroundColor: [
+                '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF',
+                '#FF9F40', '#FF6384', '#C9CBCF', '#4BC0C0', '#FF6384'
+            ]
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false
+    }
+});
+{% endif %}
+
+// Graphique ligne - Tendances temporelles
+{% if tendances_temporelles %}
+const ctxTendances = document.getElementById('chartTendances').getContext('2d');
+const chartTendances = new Chart(ctxTendances, {
+    type: 'line',
+    data: {
+        labels: {{ tendances_labels|safe }},
+        datasets: [{
+            label: 'Jeux de données créés',
+            data: {{ tendances_values|safe }},
+            borderColor: '#36A2EB',
+            backgroundColor: 'rgba(54, 162, 235, 0.1)',
+            tension: 0.4,
+            fill: true
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+{% endif %}
+</script>
 {% endblock %}

@@ -2,13 +2,37 @@ import requests
 import json
 from datetime import datetime
 from django.utils import timezone
-from donnees.models import Organisation, JeuDonnees, Ressource, Categorie
+from donnees.models import Organisation, JeuDonnees, Ressource, Categorie, SourceDonnees, ConfigurationFiltres
 
 class ServiceMoissonnage:
-    """Service pour moissonner les données depuis Données Québec"""
+    """Service pour moissonner les données depuis différentes sources"""
     
-    def __init__(self):
-        self.url_base = "https://www.donneesquebec.ca/api/3/action/"
+    def __init__(self, source=None, configuration_filtres=None):
+        """
+        Initialise le service de moissonnage
+        
+        Args:
+            source: Instance de SourceDonnees. Si None, utilise la source active par défaut.
+            configuration_filtres: Instance de ConfigurationFiltres pour filtrer les données.
+        """
+        if source is None:
+            # Utiliser la source active par défaut ou créer Données Québec
+            source = SourceDonnees.objects.filter(active=True).first()
+            if source is None:
+                # Créer la source Données Québec par défaut si elle n'existe pas
+                source, _ = SourceDonnees.objects.get_or_create(
+                    nom="Données Québec",
+                    defaults={
+                        'url_base': "https://www.donneesquebec.ca/api/3/action/",
+                        'description': "Portail des données ouvertes du Québec",
+                        'active': True
+                    }
+                )
+        
+        self.source = source
+        self.configuration_filtres = configuration_filtres
+        self.url_base = source.url_base.rstrip('/') + '/' if not source.url_base.endswith('/') else source.url_base
+        
         self.session = requests.Session()
         self.session.headers.update({
             'User-Agent': 'DataQC-Moissonneur/1.0'
@@ -80,8 +104,81 @@ class ServiceMoissonnage:
             print(f"Erreur pour le jeu de données {nom_jeu}: {e}")
             return None
     
+    def _applique_filtres_organisation(self, nom_org):
+        """Vérifie si une organisation passe les filtres configurés"""
+        if not self.configuration_filtres or not self.configuration_filtres.actif:
+            return True
+        
+        if self.configuration_filtres.organisations_filtres:
+            organisations_autorisees = [
+                org.strip() 
+                for org in self.configuration_filtres.organisations_filtres.split(';') 
+                if org.strip()
+            ]
+            return nom_org in organisations_autorisees
+        
+        return True
+    
+    def _applique_filtres_jeu_donnees(self, donnees_jeu):
+        """Vérifie si un jeu de données passe les filtres configurés"""
+        if not self.configuration_filtres or not self.configuration_filtres.actif:
+            return True
+        
+        # Filtre par catégories
+        if self.configuration_filtres.categories_filtres:
+            categories_autorisees = [
+                cat.strip().lower() 
+                for cat in self.configuration_filtres.categories_filtres.split(';') 
+                if cat.strip()
+            ]
+            # Extraire les catégories du jeu
+            categories_jeu = []
+            for groupe in donnees_jeu.get('groups', []):
+                categories_jeu.append(groupe.get('title', '').lower())
+            
+            # Vérifier si au moins une catégorie correspond
+            if categories_autorisees and not any(cat in categories_autorisees for cat in categories_jeu):
+                return False
+        
+        # Filtre par format
+        if self.configuration_filtres.formats_fichiers:
+            formats_autorises = [
+                fmt.strip().upper() 
+                for fmt in self.configuration_filtres.formats_fichiers.split(';') 
+                if fmt.strip()
+            ]
+            # Extraire les formats des ressources
+            formats_ressources = [
+                res.get('format', '').upper() 
+                for res in donnees_jeu.get('resources', [])
+            ]
+            # Vérifier si au moins un format correspond
+            if formats_autorises and not any(fmt in formats_autorises for fmt in formats_ressources):
+                return False
+        
+        # Filtre temporel
+        if self.configuration_filtres.date_debut or self.configuration_filtres.date_fin:
+            date_creation = self._parser_date(donnees_jeu.get('metadata_created'))
+            if date_creation:
+                if self.configuration_filtres.date_debut and date_creation < self.configuration_filtres.date_debut:
+                    return False
+                if self.configuration_filtres.date_fin and date_creation > self.configuration_filtres.date_fin:
+                    return False
+        
+        # Filtre par niveau d'accès
+        if self.configuration_filtres.niveau_acces:
+            niveau_jeu = 'Privé' if donnees_jeu.get('private', False) else 'Ouvert'
+            if niveau_jeu != self.configuration_filtres.niveau_acces:
+                return False
+        
+        return True
+    
     def sauvegarder_organisation(self, donnees_org):
         """Sauvegarde une organisation en base de données"""
+        # Vérifier les filtres
+        if not self._applique_filtres_organisation(donnees_org.get('title', '')):
+            return None
+        
         try:
             organisation, creee = Organisation.objects.get_or_create(
                 nom=donnees_org['title'],
@@ -111,6 +208,10 @@ class ServiceMoissonnage:
     
     def sauvegarder_jeu_donnees(self, donnees_jeu, organisation):
         """Sauvegarde un jeu de données en base de données"""
+        # Vérifier les filtres
+        if not self._applique_filtres_jeu_donnees(donnees_jeu):
+            return None
+        
         try:
             jeu_donnees, creee = JeuDonnees.objects.get_or_create(
                 titre=donnees_jeu['title'],

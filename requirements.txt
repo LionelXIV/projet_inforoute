@@ -3,4 +3,5 @@ djangorestframework==3.15.2
 graphene-django==3.1.5
 graphql-core==3.2.3
 requests==2.31.0
+drf-yasg==1.21.7
 

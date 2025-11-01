@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',  # Django REST Framework
     'graphene_django',  # GraphQL pour Django
+    'drf_yasg',  # Swagger/OpenAPI documentation
     # 'django_filters',  # Django Filter - temporairement désactivé
     'coeur',
     'donnees',
