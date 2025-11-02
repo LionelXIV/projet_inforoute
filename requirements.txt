@@ -4,4 +4,8 @@ graphene-django==3.1.5
 graphql-core==3.2.3
 requests==2.31.0
 drf-yasg==1.21.7
+gunicorn==21.2.0
+dj-database-url==2.1.0
+psycopg2-binary==2.9.9
+whitenoise==6.6.0
 
