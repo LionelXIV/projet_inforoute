@@ -1,6 +1,5 @@
 import graphene
 from graphene_django import DjangoObjectType
-from graphene_django.filter import DjangoFilterConnectionField
 from django.db import models
 from .models import Organisation, Categorie, JeuDonnees, Ressource
 
@@ -10,12 +9,6 @@ class OrganisationType(DjangoObjectType):
     class Meta:
         model = Organisation
         fields = "__all__"
-        filter_fields = {
-            'nom': ['exact', 'icontains'],
-            'type_organisation': ['exact'],
-            'nombre_jeux_donnees': ['exact', 'gte', 'lte'],
-        }
-        interfaces = (graphene.relay.Node,)
 
 
 class CategorieType(DjangoObjectType):
@@ -23,10 +16,6 @@ class CategorieType(DjangoObjectType):
     class Meta:
         model = Categorie
         fields = "__all__"
-        filter_fields = {
-            'nom': ['exact', 'icontains'],
-        }
-        interfaces = (graphene.relay.Node,)
 
 
 class JeuDonneesType(DjangoObjectType):
@@ -34,14 +23,6 @@ class JeuDonneesType(DjangoObjectType):
     class Meta:
         model = JeuDonnees
         fields = "__all__"
-        filter_fields = {
-            'titre': ['exact', 'icontains'],
-            'organisation': ['exact'],
-            'niveau_acces': ['exact'],
-            'categories': ['icontains'],
-            'etiquettes': ['icontains'],
-        }
-        interfaces = (graphene.relay.Node,)
 
 
 class RessourceType(DjangoObjectType):
@@ -49,23 +30,16 @@ class RessourceType(DjangoObjectType):
     class Meta:
         model = Ressource
         fields = "__all__"
-        filter_fields = {
-            'nom': ['exact', 'icontains'],
-            'format_fichier': ['exact'],
-            'type_ressource': ['exact'],
-            'jeu_donnees': ['exact'],
-        }
-        interfaces = (graphene.relay.Node,)
 
 
 class Query(graphene.ObjectType):
     """Queries GraphQL principales"""
     
-    # Queries pour récupérer toutes les données
-    all_organisations = DjangoFilterConnectionField(OrganisationType)
-    all_categories = DjangoFilterConnectionField(CategorieType)
-    all_jeux_donnees = DjangoFilterConnectionField(JeuDonneesType)
-    all_ressources = DjangoFilterConnectionField(RessourceType)
+    # Queries pour récupérer toutes les données (utilise graphene.List au lieu de DjangoFilterConnectionField)
+    all_organisations = graphene.List(OrganisationType)
+    all_categories = graphene.List(CategorieType)
+    all_jeux_donnees = graphene.List(JeuDonneesType)
+    all_ressources = graphene.List(RessourceType)
     
     # Queries pour récupérer un élément spécifique
     organisation = graphene.Field(OrganisationType, id=graphene.Int())
