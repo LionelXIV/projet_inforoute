@@ -5,6 +5,8 @@ import { store } from "./store/store";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Profile from "./pages/Profile";
+import { JeuxDonnees } from "./pages/JeuxDonnees";
+import { JeuDonneesDetail } from "./pages/JeuDonneesDetail";
 import ProtectedRoute from "./components/layout/ProtectedRoute";
 
 const App: React.FC = () => {
@@ -22,14 +24,8 @@ const App: React.FC = () => {
               </ProtectedRoute>
             }
           />
-          <Route
-            path="/jeux-donnees"
-            element={
-              <div>
-                <div>Liste des jeux de données (à implémenter - Jour 2)</div>
-              </div>
-            }
-          />
+          <Route path="/jeux-donnees" element={<JeuxDonnees />} />
+          <Route path="/jeux-donnees/:id" element={<JeuDonneesDetail />} />
           <Route
             path="/statistics"
             element={
