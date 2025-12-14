@@ -7,6 +7,7 @@ import Login from "./pages/Login";
 import Profile from "./pages/Profile";
 import { JeuxDonnees } from "./pages/JeuxDonnees";
 import { JeuDonneesDetail } from "./pages/JeuDonneesDetail";
+import { Statistics } from "./pages/Statistics";
 import ProtectedRoute from "./components/layout/ProtectedRoute";
 
 const App: React.FC = () => {
@@ -26,14 +27,7 @@ const App: React.FC = () => {
           />
           <Route path="/jeux-donnees" element={<JeuxDonnees />} />
           <Route path="/jeux-donnees/:id" element={<JeuDonneesDetail />} />
-          <Route
-            path="/statistics"
-            element={
-              <div>
-                <div>Page de statistiques (à implémenter - Jour 3)</div>
-              </div>
-            }
-          />
+          <Route path="/statistics" element={<Statistics />} />
         </Routes>
       </Router>
     </Provider>

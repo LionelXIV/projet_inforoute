@@ -1,7 +1,4 @@
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Calendar, ExternalLink, Tag } from 'lucide-react';
+import { Calendar, ExternalLink } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import type { JeuDonnees } from '@/types/data.types';
 
@@ -14,111 +11,199 @@ export const JeuDonneesCard = ({ jeu }: JeuDonneesCardProps) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('fr-CA', {
       year: 'numeric',
-      month: 'long',
+      month: 'short',
       day: 'numeric',
     });
   };
 
-  const getCategories = () => {
-    if (!jeu.categories) return [];
-    return jeu.categories.split(';').map((cat) => cat.trim()).filter(Boolean);
-  };
-
-  const getEtiquettes = () => {
-    if (!jeu.etiquettes) return [];
-    return jeu.etiquettes.split(';').map((etq) => etq.trim()).filter(Boolean);
-  };
-
-  const truncateDescription = (text: string, maxLength: number = 150) => {
+  const truncateDescription = (text: string, maxLength: number = 100) => {
     if (text.length <= maxLength) return text;
     return text.substring(0, maxLength) + '...';
   };
 
   return (
-    <Card className="h-full flex flex-col hover:shadow-lg transition-shadow">
-      <CardHeader>
-        <div className="flex items-start justify-between gap-2">
-          <CardTitle className="text-lg line-clamp-2">{jeu.titre}</CardTitle>
+    <div className="card" style={{
+      display: 'flex',
+      flexDirection: 'column',
+      minWidth: '0',
+      wordWrap: 'break-word',
+      backgroundColor: '#fff',
+      backgroundClip: 'border-box',
+      border: '1px solid rgba(0,0,0,0.125)',
+      borderRadius: '0.25rem',
+      transition: 'transform 0.2s, box-shadow 0.2s',
+      height: '100%'
+    }}
+    onMouseEnter={(e) => {
+      e.currentTarget.style.transform = 'translateY(-3px)';
+      e.currentTarget.style.boxShadow = '0 0.25rem 0.5rem rgba(0,0,0,0.1)';
+    }}
+    onMouseLeave={(e) => {
+      e.currentTarget.style.transform = 'translateY(0)';
+      e.currentTarget.style.boxShadow = 'none';
+    }}
+    >
+      <div className="card-header" style={{
+        padding: '0.5rem 0.75rem',
+        marginBottom: '0',
+        backgroundColor: 'rgba(0,0,0,0.03)',
+        borderBottom: '1px solid rgba(0,0,0,0.125)'
+      }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.5rem' }}>
+          <h6 className="card-title" style={{
+            marginBottom: '0',
+            fontSize: '0.95rem',
+            fontWeight: '600',
+            lineHeight: '1.3',
+            flex: 1,
+            display: '-webkit-box',
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: 'vertical',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis'
+          }}>
+            {jeu.titre}
+          </h6>
           {jeu.niveau_acces && (
-            <Badge variant={jeu.niveau_acces === 'Ouvert' ? 'default' : 'secondary'}>
+            <span className="badge" style={{
+              display: 'inline-block',
+              padding: '0.2em 0.5em',
+              fontSize: '0.7em',
+              fontWeight: '700',
+              lineHeight: '1',
+              textAlign: 'center',
+              whiteSpace: 'nowrap',
+              verticalAlign: 'baseline',
+              borderRadius: '0.25rem',
+              backgroundColor: jeu.niveau_acces === 'Ouvert' ? '#198754' : '#6c757d',
+              color: '#fff',
+              flexShrink: 0
+            }}>
               {jeu.niveau_acces}
-            </Badge>
+            </span>
           )}
         </div>
         {jeu.organisation_nom && (
-          <CardDescription className="flex items-center gap-1 mt-1">
-            <span>{jeu.organisation_nom}</span>
-            {jeu.organisation_type && (
-              <span className="text-muted-foreground">• {jeu.organisation_type}</span>
-            )}
-          </CardDescription>
+          <p className="text-muted mb-0 mt-1" style={{
+            marginBottom: '0',
+            marginTop: '0.25rem',
+            fontSize: '0.75rem',
+            color: '#6c757d',
+            display: '-webkit-box',
+            WebkitLineClamp: 1,
+            WebkitBoxOrient: 'vertical',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis'
+          }}>
+            {jeu.organisation_nom}
+          </p>
         )}
-      </CardHeader>
-      <CardContent className="flex-1">
-        <p className="text-sm text-muted-foreground mb-4">
-          {truncateDescription(jeu.description || 'Aucune description disponible')}
+      </div>
+      <div className="card-body" style={{ flex: '1 1 auto', padding: '0.75rem' }}>
+        <p className="card-text" style={{
+          marginBottom: '0.5rem',
+          fontSize: '0.8rem',
+          color: '#6c757d',
+          lineHeight: '1.4',
+          display: '-webkit-box',
+          WebkitLineClamp: 3,
+          WebkitBoxOrient: 'vertical',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          minHeight: '3.6rem'
+        }}>
+          {truncateDescription(jeu.description || 'Aucune description disponible', 100)}
         </p>
 
-        {getCategories().length > 0 && (
-          <div className="mb-3">
-            <div className="flex items-center gap-1 mb-1">
-              <Tag className="h-3 w-3 text-muted-foreground" />
-              <span className="text-xs font-medium text-muted-foreground">Catégories</span>
-            </div>
-            <div className="flex flex-wrap gap-1">
-              {getCategories().slice(0, 3).map((cat, index) => (
-                <Badge key={index} variant="outline" className="text-xs">
-                  {cat}
-                </Badge>
-              ))}
-              {getCategories().length > 3 && (
-                <Badge variant="outline" className="text-xs">
-                  +{getCategories().length - 3}
-                </Badge>
-              )}
-            </div>
+        {jeu.date_creation && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.7rem', color: '#6c757d', marginTop: '0.5rem' }}>
+            <Calendar size={12} />
+            <span>{formatDate(jeu.date_creation)}</span>
           </div>
         )}
-
-        {getEtiquettes().length > 0 && (
-          <div className="mb-3">
-            <div className="flex flex-wrap gap-1">
-              {getEtiquettes().slice(0, 2).map((etq, index) => (
-                <Badge key={index} variant="secondary" className="text-xs">
-                  {etq}
-                </Badge>
-              ))}
-              {getEtiquettes().length > 2 && (
-                <Badge variant="secondary" className="text-xs">
-                  +{getEtiquettes().length - 2}
-                </Badge>
-              )}
-            </div>
-          </div>
-        )}
-
-        <div className="flex items-center gap-4 text-xs text-muted-foreground mt-4">
-          {jeu.date_creation && (
-            <div className="flex items-center gap-1">
-              <Calendar className="h-3 w-3" />
-              <span>Créé le {formatDate(jeu.date_creation)}</span>
-            </div>
-          )}
-        </div>
-      </CardContent>
-      <CardFooter className="flex gap-2">
-        <Button asChild variant="default" className="flex-1">
-          <Link to={`/jeux-donnees/${jeu.id}`}>Voir les détails</Link>
-        </Button>
+      </div>
+      <div className="card-footer" style={{
+        padding: '0.5rem 0.75rem',
+        backgroundColor: 'rgba(0,0,0,0.03)',
+        borderTop: '1px solid rgba(0,0,0,0.125)',
+        borderRadius: '0 0 calc(0.25rem - 1px) calc(0.25rem - 1px)',
+        display: 'flex',
+        gap: '0.5rem'
+      }}>
+        <Link
+          to={`/jeux-donnees/${jeu.id}`}
+          className="btn btn-primary"
+          style={{
+            flex: 1,
+            display: 'inline-block',
+            fontWeight: '400',
+            lineHeight: '1.5',
+            color: '#fff',
+            textAlign: 'center',
+            textDecoration: 'none',
+            verticalAlign: 'middle',
+            cursor: 'pointer',
+            userSelect: 'none',
+            backgroundColor: '#0d6efd',
+            border: '1px solid #0d6efd',
+            padding: '0.25rem 0.5rem',
+            fontSize: '0.8rem',
+            borderRadius: '0.25rem',
+            transition: 'color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = '#0b5ed7';
+            e.currentTarget.style.borderColor = '#0a58ca';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = '#0d6efd';
+            e.currentTarget.style.borderColor = '#0d6efd';
+          }}
+        >
+          Détails
+        </Link>
         {jeu.url_originale && (
-          <Button asChild variant="outline" size="icon">
-            <a href={jeu.url_originale} target="_blank" rel="noopener noreferrer">
-              <ExternalLink className="h-4 w-4" />
-            </a>
-          </Button>
+          <a
+            href={jeu.url_originale}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn btn-outline-secondary"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontWeight: '400',
+              lineHeight: '1.5',
+              color: '#6c757d',
+              textAlign: 'center',
+              textDecoration: 'none',
+              verticalAlign: 'middle',
+              cursor: 'pointer',
+              userSelect: 'none',
+              backgroundColor: 'transparent',
+              border: '1px solid #6c757d',
+              padding: '0.25rem 0.5rem',
+              fontSize: '0.8rem',
+              borderRadius: '0.25rem',
+              width: '36px',
+              transition: 'color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.color = '#fff';
+              e.currentTarget.style.backgroundColor = '#6c757d';
+              e.currentTarget.style.borderColor = '#6c757d';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.color = '#6c757d';
+              e.currentTarget.style.backgroundColor = 'transparent';
+              e.currentTarget.style.borderColor = '#6c757d';
+            }}
+            title="Ouvrir dans un nouvel onglet"
+          >
+            <ExternalLink size={14} />
+          </a>
         )}
-      </CardFooter>
-    </Card>
+      </div>
+    </div>
   );
 };
-

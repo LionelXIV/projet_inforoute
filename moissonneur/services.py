@@ -239,6 +239,9 @@ class ServiceMoissonnage:
                 jeu_donnees.date_modification = timezone.now()
                 jeu_donnees.save()
             
+            # Créer/mettre à jour les objets Categorie à partir des catégories du jeu
+            self._synchroniser_categories(jeu_donnees)
+            
             return jeu_donnees
             
         except Exception as e:
@@ -327,6 +330,39 @@ class ServiceMoissonnage:
             etiquettes.append(tag.get('name', ''))
         
         return '; '.join(filter(None, etiquettes))
+    
+    def _synchroniser_categories(self, jeu_donnees):
+        """Crée ou met à jour les objets Categorie à partir des catégories d'un jeu de données"""
+        if not jeu_donnees.categories:
+            return
+        
+        # Séparer les catégories (séparées par ';' ou '; ')
+        categories_list = [cat.strip() for cat in jeu_donnees.categories.split(';') if cat.strip()]
+        
+        for nom_categorie in categories_list:
+            if nom_categorie:
+                # Créer ou récupérer la catégorie
+                categorie, creee = Categorie.objects.get_or_create(
+                    nom=nom_categorie,
+                    defaults={
+                        'description': f'Catégorie extraite automatiquement depuis les jeux de données',
+                        'nombre_jeux_donnees': 0
+                    }
+                )
+                
+                # Mettre à jour le compteur de jeux de données pour cette catégorie
+                if creee:
+                    # Nouvelle catégorie, compter les jeux qui l'utilisent
+                    categorie.nombre_jeux_donnees = JeuDonnees.objects.filter(
+                        categories__icontains=nom_categorie
+                    ).count()
+                    categorie.save()
+                else:
+                    # Catégorie existante, recalculer le compteur
+                    categorie.nombre_jeux_donnees = JeuDonnees.objects.filter(
+                        categories__icontains=nom_categorie
+                    ).count()
+                    categorie.save()
     
     def _parser_date(self, date_string):
         """Parse une date depuis l'API CKAN"""

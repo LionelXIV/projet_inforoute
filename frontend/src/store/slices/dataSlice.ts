@@ -3,10 +3,8 @@ import { dataService } from '../../services/dataService';
 import { graphqlDataService } from '../../services/graphqlQueries';
 import type {
   JeuDonnees,
-  Ressource,
   Organisation,
   Categorie,
-  PaginatedResponse,
   JeuxDonneesParams,
 } from '../../types/data.types';
 
@@ -136,10 +134,19 @@ const dataSlice = createSlice({
   initialState,
   reducers: {
     setFilters: (state, action: PayloadAction<JeuxDonneesParams>) => {
-      state.filters = { ...state.filters, ...action.payload };
+      // Réinitialiser la page à 1 lors de l'application de nouveaux filtres (sauf si page est explicitement fournie)
+      const newFilters = { ...action.payload };
+      if (!newFilters.page) {
+        newFilters.page = 1;
+      }
+      state.filters = newFilters;
+      // Réinitialiser les jeux de données pour forcer le rechargement
+      state.jeuxDonnees = [];
     },
     clearFilters: (state) => {
       state.filters = {};
+      // Réinitialiser les jeux de données pour forcer le rechargement
+      state.jeuxDonnees = [];
     },
     setCurrentJeuDonnees: (state, action: PayloadAction<JeuDonnees | null>) => {
       state.currentJeuDonnees = action.payload;

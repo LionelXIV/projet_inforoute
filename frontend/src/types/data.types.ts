@@ -77,9 +77,17 @@ export interface StatsResponse {
   formats?: Record<string, number>;
   types?: Record<string, number>;
   taille_totale?: number;
+  // Format GraphQL (camelCase)
   statsOrganisations?: number;
   statsJeuxDonnees?: number;
   statsRessources?: number;
+  // Format REST (snake_case)
+  stats_organisations?: number;
+  stats_jeux_donnees?: number;
+  stats_ressources?: number;
+  // Statistiques calculées côté backend pour cohérence
+  evolution_temporelle?: Record<string, number>;
+  distribution_organisations?: Record<string, number>;
 }
 
 

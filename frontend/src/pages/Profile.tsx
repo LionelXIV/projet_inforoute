@@ -3,6 +3,7 @@ import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { getCurrentUser } from '../store/slices/authSlice';
 import { authService } from '../services/api';
 import Navbar from '../components/layout/Navbar';
+import Footer from '../components/layout/Footer';
 import { User, Mail, Save, Loader2 } from 'lucide-react';
 import type { UpdateProfileData } from '../types/auth.types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -102,9 +103,10 @@ const Profile: React.FC = () => {
     return (
       <>
         <Navbar />
-        <div className="min-h-screen flex items-center justify-center">
+        <main className="container" style={{ marginTop: '2rem', minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        </div>
+        </main>
+        <Footer />
       </>
     );
   }
@@ -112,8 +114,8 @@ const Profile: React.FC = () => {
   return (
     <>
       <Navbar />
-      <div className="min-h-screen bg-background py-8">
-        <div className="container mx-auto px-4 max-w-4xl">
+      <main className="container" style={{ marginTop: '2rem' }}>
+        <div style={{ maxWidth: '56rem', margin: '0 auto' }}>
           <Card>
             <CardHeader>
               <div className="flex items-center space-x-3">
@@ -244,7 +246,8 @@ const Profile: React.FC = () => {
             </CardContent>
           </Card>
         </div>
-      </div>
+      </main>
+      <Footer />
     </>
   );
 };
